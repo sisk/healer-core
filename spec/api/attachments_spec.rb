@@ -36,19 +36,27 @@ RSpec.describe "attachments", type: :api do
 
       expect(persisted_case.reload.attachments.size).to eq(1)
 
-      get "/v1/cases/#{persisted_case.id}", query_params.merge(showAttachments: true), headers
+      get(
+        "/v1/cases/#{persisted_case.id}",
+        query_params.merge(showAttachments: true),
+        headers
+      )
 
       expect_success_response
       response_record = json["case"]
       expect(response_record["attachments"].size).to eq(1)
       returned_attachment = response_record["attachments"].first
-      expect(returned_attachment["documentFileName"]).to eq(@attachment_attributes[:file_name])
+      expect(
+        returned_attachment["documentFileName"]
+      ).to eq(@attachment_attributes[:file_name])
     end
 
     it "returns 404 if a record is not found" do
       expect(Case.find_by_id(99_999)).to eq(nil)
       setup_attachment_attributes("Case", 99_999)
       payload = query_params.merge(attachment: @attachment_attributes)
+
+      puts payload.to_json
 
       expect {
         post(endpoint_url, payload.to_json, headers)
